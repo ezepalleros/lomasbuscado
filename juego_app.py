@@ -89,17 +89,26 @@ class JuegoApp:
             self.finalizar_juego()
 
     def verificar_respuesta(self):
-        respuesta = self.entrada_respuesta.get().strip()
+        respuesta = self.entrada_respuesta.get().strip().lower()
         pregunta, opciones = preguntas[self.categoria][self.pregunta_actual]
 
         correcta = False
-        for idx, (texto_respuesta, puntos) in enumerate(opciones):
-            if respuesta.lower() == texto_respuesta.lower() and texto_respuesta not in self.respuestas_correctas:
-                self.etiquetas_respuestas[idx].config(text=f"{idx + 1}- {texto_respuesta} ({puntos} puntos)")
-                self.puntaje += puntos
-                self.respuestas_correctas.append(texto_respuesta)
-                correcta = True
-                break
+        for idx, (respuestas_correctas, puntos) in enumerate(opciones):
+            if isinstance(respuestas_correctas, list):
+                if any(respuesta == r.lower() for r in respuestas_correctas):
+                    self.etiquetas_respuestas[idx].config(
+                        text=f"{idx + 1}- {respuestas_correctas[0]} ({puntos} puntos)")
+                    self.puntaje += puntos
+                    self.respuestas_correctas.append(respuestas_correctas[0])
+                    correcta = True
+                    break
+            else:
+                if respuesta == respuestas_correctas.lower() and respuestas_correctas not in self.respuestas_correctas:
+                    self.etiquetas_respuestas[idx].config(text=f"{idx + 1}- {respuestas_correctas} ({puntos} puntos)")
+                    self.puntaje += puntos
+                    self.respuestas_correctas.append(respuestas_correctas)
+                    correcta = True
+                    break
 
         if correcta:
             self.entrada_respuesta.delete(0, tk.END)
@@ -114,7 +123,6 @@ class JuegoApp:
             if self.vidas == 0:
                 self.pregunta_actual += 1
                 self.hacer_pregunta()
-
     def finalizar_juego(self):
         self.limpiar_ventana()
         self.etiqueta = tk.Label(self.ventana, text=f"Fin del juego. Puntaje final: {self.puntaje}",
