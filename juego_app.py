@@ -1,7 +1,10 @@
 import tkinter as tk
 from tkinter import messagebox
+from PIL import Image, ImageTk
+import os
 from data import preguntas, colores_categoria
 from login import Login
+
 
 class JuegoApp:
     def __init__(self, ventana):
@@ -14,13 +17,14 @@ class JuegoApp:
         self.vidas = 3
         self.puntaje = 0
         self.respuestas_correctas = []
+        self.imagen_label = None
 
         # Crear instancia de login
         self.login = Login(ventana, self.iniciar_juego)
 
     def iniciar_juego(self, usuario):
         self.usuario = usuario
-        self.login.limpiar()  # Ocultar el login una vez que el usuario ha ingresado
+        self.login.limpiar()
         self.mostrar_categorias()
 
     def mostrar_categorias(self):
@@ -49,15 +53,27 @@ class JuegoApp:
             self.etiqueta = tk.Label(self.ventana, text=pregunta, font=("Helvetica", 12), bg="white")
             self.etiqueta.pack(pady=20)
 
-            # Cuadro de entrada en la parte superior
+            image_name = f"{self.categoria}_{self.pregunta_actual + 1}.png"
+            image_path = os.path.join("img", image_name)
+
+            if os.path.exists(image_path):
+                img = Image.open(image_path)
+                img = img.resize((300, 200), Image.Resampling.LANCZOS)
+                img_tk = ImageTk.PhotoImage(img)
+
+                if self.imagen_label is None:
+                    self.imagen_label = tk.Label(self.ventana, image=img_tk, bg="white")
+                    self.imagen_label.image = img_tk
+                    self.imagen_label.pack(pady=10)
+                else:
+                    self.imagen_label.config(image=img_tk)
+                    self.imagen_label.image = img_tk
+
             self.entrada_respuesta = tk.Entry(self.ventana, font=("Helvetica", 12))
             self.entrada_respuesta.pack(pady=10)
-
             self.boton_enviar = tk.Button(self.ventana, text="Responder", font=("Helvetica", 12),
                                           command=self.verificar_respuesta)
             self.boton_enviar.pack(pady=10)
-
-            # Diseño en cuadrícula para las respuestas con color de borde según la categoría
             self.respuestas_frame = tk.Frame(self.ventana, bg="white")
             self.respuestas_frame.pack()
 
@@ -111,5 +127,5 @@ class JuegoApp:
 
     def limpiar_ventana(self):
         for widget in self.ventana.winfo_children():
-            widget.destroy()
-
+            if not isinstance(widget, tk.Label) or widget != self.imagen_label:
+                widget.destroy()
