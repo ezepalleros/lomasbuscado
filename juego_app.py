@@ -5,7 +5,6 @@ import os
 from data import preguntas, colores_categoria
 from login import Login
 
-
 class JuegoApp:
     def __init__(self, ventana):
         self.ventana = ventana
@@ -21,6 +20,14 @@ class JuegoApp:
 
         # Crear instancia de login
         self.login = Login(ventana, self.iniciar_juego)
+
+        # Crear el frame para puntaje y respuestas
+        self.frame_puntaje = tk.Frame(self.ventana, bg="white")
+        self.frame_puntaje.pack(side=tk.BOTTOM, fill=tk.X, pady=10)
+
+        # La etiqueta de puntaje estará dentro del frame_puntaje
+        self.etiqueta_puntaje = tk.Label(self.frame_puntaje, text=f"Puntaje: {self.puntaje}", font=("Helvetica", 14, "bold"), bg="white")
+        self.etiqueta_puntaje.pack(side=tk.LEFT, padx=10)
 
     def iniciar_juego(self, usuario):
         self.usuario = usuario
@@ -38,10 +45,16 @@ class JuegoApp:
             boton.pack(pady=10)
 
     def iniciar_categoria(self, categoria):
-        self.limpiar_ventana()
+        self.puntaje = 0
+        self.respuestas_correctas = []
+        self.vidas = 3
         self.pregunta_actual = 0
         self.categoria = categoria
         self.color_categoria = colores_categoria[categoria]
+
+        self.etiqueta_puntaje.config(text=f"Puntaje: {self.puntaje}")
+
+        self.limpiar_ventana()
         self.hacer_pregunta()
 
     def hacer_pregunta(self):
@@ -85,6 +98,9 @@ class JuegoApp:
                 etiqueta.config(highlightbackground=self.color_categoria, highlightthickness=2)
                 etiqueta.grid(row=i // 2, column=i % 2, padx=5, pady=5)
                 self.etiquetas_respuestas.append(etiqueta)
+
+            self.etiqueta_puntaje.config(text=f"Puntaje: {self.puntaje}")  # Actualizar el puntaje
+            self.etiqueta_puntaje.pack(side=tk.LEFT, padx=10)
         else:
             self.finalizar_juego()
 
@@ -95,7 +111,7 @@ class JuegoApp:
         correcta = False
         for idx, (respuestas_correctas, puntos) in enumerate(opciones):
             if isinstance(respuestas_correctas, list):
-                if any(respuesta == r.lower() for r in respuestas_correctas):
+                if any(respuesta == r.lower() for r in respuestas_correctas) and respuestas_correctas[0] not in self.respuestas_correctas:
                     self.etiquetas_respuestas[idx].config(
                         text=f"{idx + 1}- {respuestas_correctas[0]} ({puntos} puntos)")
                     self.puntaje += puntos
@@ -113,6 +129,7 @@ class JuegoApp:
         if correcta:
             self.entrada_respuesta.delete(0, tk.END)
             messagebox.showinfo("Respuesta Correcta", "¡Respuesta correcta!")
+            self.actualizar_puntaje()  # Actualizamos el puntaje aquí
             if len(self.respuestas_correctas) == len(opciones):
                 messagebox.showinfo("Pregunta Completada", "¡Has respondido todas las respuestas correctamente!")
                 self.pregunta_actual += 1
@@ -123,6 +140,10 @@ class JuegoApp:
             if self.vidas == 0:
                 self.pregunta_actual += 1
                 self.hacer_pregunta()
+
+    def actualizar_puntaje(self):
+        self.etiqueta_puntaje.config(text=f"Puntaje: {self.puntaje}")
+
     def finalizar_juego(self):
         self.limpiar_ventana()
         self.etiqueta = tk.Label(self.ventana, text=f"Fin del juego. Puntaje final: {self.puntaje}",
@@ -135,5 +156,5 @@ class JuegoApp:
 
     def limpiar_ventana(self):
         for widget in self.ventana.winfo_children():
-            if not isinstance(widget, tk.Label) or widget != self.imagen_label:
+            if widget != self.imagen_label and widget != self.frame_puntaje:  # No eliminar el frame de puntaje
                 widget.destroy()
