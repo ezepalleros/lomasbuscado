@@ -1,9 +1,11 @@
 import tkinter as tk
 from tkinter import messagebox
-from PIL import Image, ImageTk
+from PIL import Image, ImageTk 
 import os
 from data import preguntas, colores_categoria
 from login import Login
+from conexion import guardar_jugador, obtener_top_jugadores
+
 
 class JuegoApp:
     def __init__(self, ventana):
@@ -153,8 +155,30 @@ class JuegoApp:
         self.boton_jugar_de_nuevo = tk.Button(self.ventana, text="Jugar de nuevo", font=("Helvetica", 12),
                                               command=self.mostrar_categorias)
         self.boton_jugar_de_nuevo.pack(pady=20)
+    
+    def finalizar_juego(self):
+    # Guardar puntaje en la base de datos
+        if self.usuario:
+            guardar_jugador(self.usuario, self.puntaje)
+
+            self.limpiar_ventana()
+            tk.Label(self.ventana, text=f"Fin del juego. Puntaje final: {self.puntaje}",
+             font=("Helvetica", 14, "bold"), bg="white").pack(pady=20)
+
+    # Mostrar el Top 3 de jugadores
+            tk.Label(self.ventana, text="Top 3 jugadores:", font=("Helvetica", 12, "bold"), bg="white").pack(pady=10)
+            top_jugadores = obtener_top_jugadores()
+        for idx, (nombre, puntaje) in enumerate(top_jugadores, start=1):
+            tk.Label(self.ventana, text=f"{idx}. {nombre} - {puntaje} puntos",
+                 font=("Helvetica", 12), bg="white").pack()
+
+    # Botón para jugar de nuevo
+        tk.Button(self.ventana, text="Jugar de nuevo", font=("Helvetica", 12),
+              command=self.mostrar_categorias).pack(pady=20)
+
 
     def limpiar_ventana(self):
         for widget in self.ventana.winfo_children():
             if widget != self.imagen_label and widget != self.frame_puntaje:  # No eliminar el frame de puntaje
                 widget.destroy()
+
