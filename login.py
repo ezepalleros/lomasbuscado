@@ -1,5 +1,6 @@
 import tkinter as tk
 from tkinter import messagebox
+from conexion import obtener_top_jugadores
 
 class Login:
     def __init__(self, ventana, callback_iniciar_juego):
@@ -16,6 +17,9 @@ class Login:
         self.boton_iniciar = tk.Button(ventana, text="Comenzar", font=("Helvetica", 12), command=self.iniciar_sesion)
         self.boton_iniciar.pack(pady=20)
 
+        # Mostrar el Top 3 de jugadores al inicio
+        self.mostrar_top_3()
+
     def iniciar_sesion(self):
         usuario = self.entrada.get()
         if usuario:
@@ -23,7 +27,22 @@ class Login:
         else:
             messagebox.showwarning("Advertencia", "Por favor ingrese un nombre.")
 
+    def mostrar_top_3(self):
+        # Mostrar un encabezado para el Top 3
+        tk.Label(self.ventana, text="Top 3 jugadores:", font=("Helvetica", 12, "bold"), bg="white").pack(pady=10)
+
+        # Obtener el Top 3 desde la base de datos
+        top_jugadores = obtener_top_jugadores()
+        if top_jugadores:
+            for idx, (nombre, puntaje) in enumerate(top_jugadores, start=1):
+                tk.Label(self.ventana, text=f"{idx}. {nombre} - {puntaje} puntos",
+                         font=("Helvetica", 12), bg="white").pack(pady=5)
+        else:
+            tk.Label(self.ventana, text="No hay jugadores registrados aún.",
+                     font=("Helvetica", 12), bg="white").pack(pady=5)
+
     def limpiar(self):
         self.etiqueta.pack_forget()
         self.entrada.pack_forget()
         self.boton_iniciar.pack_forget()
+
