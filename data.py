@@ -94,8 +94,8 @@ preguntas = {
 }
 
 colores_categoria = {
-    "Cultura general🌍": "lightblue",
-    "Entretenimiento📺": "lightgreen",
-    "Deportes⚽": "lightcoral",
-    "Historia Argentina🧉": "lightgoldenrod",
+    "Cultura general": "lightblue",
+    "Entretenimiento": "lightgreen",
+    "Deportes": "lightcoral",
+    "Historia Argentina": "lightgoldenrod",
 }
