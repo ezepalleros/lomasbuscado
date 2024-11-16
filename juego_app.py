@@ -4,6 +4,9 @@ from PIL import Image, ImageTk
 import os
 from data import preguntas, colores_categoria
 from login import Login
+from conexion import guardar_jugador, obtener_top_jugadores
+import pygame
+
 
 class JuegoApp:
     def __init__(self, ventana):
@@ -12,22 +15,37 @@ class JuegoApp:
         ventana.geometry("600x600")
         ventana.configure(bg="white")
 
+
+        pygame.mixer.init()
+
+
+        # Cargar sonido para respuestas correctas
+        self.sonido_correcto = pygame.mixer.Sound("musica/goodresult-82807.mp3")
+        self.sonido_incorrecto = pygame.mixer.Sound("musica/boo-36556.mp3")
+        self.sonido_fondo = pygame.mixer.Sound("musica/suspense-cinematic-248035.mp3")
+
+
+        pygame.mixer.Sound.play(self.sonido_fondo)
+
         self.usuario = None
         self.vidas = 3
         self.puntaje = 0
         self.respuestas_correctas = []
         self.imagen_label = None
 
+
         # Crear instancia de login
         self.login = Login(ventana, self.iniciar_juego)
 
         # Crear el frame para puntaje y respuestas
         self.frame_puntaje = tk.Frame(self.ventana, bg="white")
-        self.frame_puntaje.pack(side=tk.BOTTOM, fill=tk.X, pady=10)
+        self.frame_puntaje.place(relx=0.5, rely=0.95, anchor="center")
 
         # La etiqueta de puntaje estará dentro del frame_puntaje
         self.etiqueta_puntaje = tk.Label(self.frame_puntaje, text=f"Puntaje: {self.puntaje}", font=("Helvetica", 14, "bold"), bg="white")
         self.etiqueta_puntaje.pack(side=tk.LEFT, padx=10)
+
+
 
     def iniciar_juego(self, usuario):
         self.usuario = usuario
@@ -67,9 +85,9 @@ class JuegoApp:
             self.etiqueta.pack(pady=20)
 
             image_name = f"{self.categoria}_{self.pregunta_actual + 1}.png"
-            image_path = os.path.join("img", image_name)
+            image_path = f"img/{image_name}"
 
-            if os.path.exists(image_path):
+            try:
                 img = Image.open(image_path)
                 img = img.resize((300, 200), Image.Resampling.LANCZOS)
                 img_tk = ImageTk.PhotoImage(img)
@@ -81,6 +99,8 @@ class JuegoApp:
                 else:
                     self.imagen_label.config(image=img_tk)
                     self.imagen_label.image = img_tk
+            except FileNotFoundError:
+                pass  # Si no encuentra la imagen, continúa sin mostrarla.
 
             self.entrada_respuesta = tk.Entry(self.ventana, font=("Helvetica", 12))
             self.entrada_respuesta.pack(pady=10)
@@ -128,14 +148,16 @@ class JuegoApp:
 
         if correcta:
             self.entrada_respuesta.delete(0, tk.END)
+            pygame.mixer.Sound.play(self.sonido_correcto)
             messagebox.showinfo("Respuesta Correcta", "¡Respuesta correcta!")
-            self.actualizar_puntaje()  # Actualizamos el puntaje aquí
+            self.actualizar_puntaje()
             if len(self.respuestas_correctas) == len(opciones):
                 messagebox.showinfo("Pregunta Completada", "¡Has respondido todas las respuestas correctamente!")
                 self.pregunta_actual += 1
                 self.hacer_pregunta()
         else:
             self.vidas -= 1
+            pygame.mixer.Sound.play(self.sonido_incorrecto)
             messagebox.showerror("Respuesta Incorrecta", f"Incorrecto. Te quedan {self.vidas} vidas.")
             if self.vidas == 0:
                 self.pregunta_actual += 1
@@ -156,5 +178,5 @@ class JuegoApp:
 
     def limpiar_ventana(self):
         for widget in self.ventana.winfo_children():
-            if widget != self.imagen_label and widget != self.frame_puntaje:  # No eliminar el frame de puntaje
+            if widget != self.imagen_label and widget != self.frame_puntaje:
                 widget.destroy()
