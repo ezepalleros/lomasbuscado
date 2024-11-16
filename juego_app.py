@@ -7,7 +7,6 @@ from login import Login
 from conexion import guardar_jugador, obtener_top_jugadores
 import pygame
 
-
 class JuegoApp:
     def __init__(self, ventana):
         self.ventana = ventana
@@ -168,13 +167,68 @@ class JuegoApp:
 
     def finalizar_juego(self):
         self.limpiar_ventana()
-        self.etiqueta = tk.Label(self.ventana, text=f"Fin del juego. Puntaje final: {self.puntaje}",
+
+        self.etiqueta = tk.Label(self.ventana, text=f"Fin del juego, {self.usuario}. Puntaje final: {self.puntaje}",
                                  font=("Helvetica", 14, "bold"), bg="white")
         self.etiqueta.pack(pady=20)
 
+        guardar_jugador(self.usuario, self.puntaje)
+        jugadores_top = obtener_top_jugadores()
+
+        if jugadores_top:
+            encabezado = tk.Label(self.ventana, text="Top Jugadores:", font=("Helvetica", 12, "bold"), bg="white")
+            encabezado.pack(pady=10)
+
+            for idx, (nombre, puntaje) in enumerate(jugadores_top, start=1):
+                texto = f"{idx}. {nombre} - {puntaje} puntos"
+                etiqueta = tk.Label(self.ventana, text=texto, font=("Helvetica", 12), bg="white")
+                etiqueta.pack(pady=5)
+        else:
+            etiqueta = tk.Label(self.ventana, text="No hay jugadores registrados aún.",
+                                font=("Helvetica", 12), bg="white")
+            etiqueta.pack(pady=5)
+
+        # Botón para jugar de nuevo
         self.boton_jugar_de_nuevo = tk.Button(self.ventana, text="Jugar de nuevo", font=("Helvetica", 12),
                                               command=self.mostrar_categorias)
         self.boton_jugar_de_nuevo.pack(pady=20)
+
+    def mostrar_tabla_clasificaciones(self):
+        self.limpiar_ventana()
+        encabezado = tk.Label(self.ventana, text="Tabla de Clasificaciones", font=("Helvetica", 14, "bold"), bg="white")
+        encabezado.pack(pady=20)
+
+        jugadores_top = obtener_top_jugadores()
+
+        if jugadores_top:
+            for idx, (nombre, puntaje) in enumerate(jugadores_top, start=1):
+                texto = f"{idx}. {nombre} - {puntaje} puntos"
+                etiqueta = tk.Label(self.ventana, text=texto, font=("Helvetica", 12), bg="white")
+                etiqueta.pack(pady=5)
+        else:
+            etiqueta = tk.Label(self.ventana, text="No hay jugadores registrados aún.", font=("Helvetica", 12),
+                                bg="white")
+            etiqueta.pack(pady=5)
+
+        # Botón para volver al juego
+        boton_volver = tk.Button(self.ventana, text="Volver al juego", font=("Helvetica", 12),
+                                 command=self.mostrar_categorias)
+        boton_volver.pack(pady=20)
+
+    def mostrar_categorias(self):
+        self.limpiar_ventana()
+        self.etiqueta = tk.Label(self.ventana, text="Elija una categoría:", font=("Helvetica", 14, "bold"), bg="white")
+        self.etiqueta.pack(pady=20)
+
+        for categoria, color in colores_categoria.items():
+            boton = tk.Button(self.ventana, text=categoria, font=("Helvetica", 12), bg=color,
+                              command=lambda c=categoria: self.iniciar_categoria(c))
+            boton.pack(pady=10)
+
+        # Botón para ver la tabla de clasificaciones
+        boton_tabla = tk.Button(self.ventana, text="Tabla de Clasificaciones", font=("Helvetica", 12), bg="lightblue",
+                                command=self.mostrar_tabla_clasificaciones)
+        boton_tabla.pack(pady=20)
 
     def limpiar_ventana(self):
         for widget in self.ventana.winfo_children():
