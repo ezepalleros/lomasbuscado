@@ -11,21 +11,30 @@ class JuegoApp:
     def __init__(self, ventana):
         self.ventana = ventana
         ventana.title("Lo + Buscado")
-        ventana.geometry("600x600")
-        ventana.configure(bg="white")
+        ventana.geometry("500x600")
+        ventana.configure(bg="#6e8101")
 
-
+        
         pygame.mixer.init()
+        
+        self.img_fondo = Image.open("img/gameboy.jpg")  # Reemplaza con la ruta de tu imagen
+        self.img_fondo = self.img_fondo.resize((500, 700), Image.Resampling.LANCZOS)
+        self.tk_img_fondo = ImageTk.PhotoImage(self.img_fondo)
+
+        self.label_fondo = tk.Label(self.ventana, image=self.tk_img_fondo)
+        self.label_fondo.place(x=0, y=0, relwidth=1, relheight=1)
 
 
         # Cargar sonido para respuestas correctas
         self.sonido_correcto = pygame.mixer.Sound("musica/goodresult-82807.mp3")
         self.sonido_incorrecto = pygame.mixer.Sound("musica/boo-36556.mp3")
-        self.sonido_fondo = pygame.mixer.Sound("musica/suspense-cinematic-248035.mp3")
+        self.sonido_todoCorrecto = pygame.mixer.Sound("musica/claps.mp3")
+        self.sonido_fondo = pygame.mixer.Sound("musica/gameboy.mp3")
 
+        self.sonido_fondo.play(loops=-1)
 
-        pygame.mixer.Sound.play(self.sonido_fondo)
-
+      
+        
         self.usuario = None
         self.vidas = 3
         self.puntaje = 0
@@ -37,12 +46,12 @@ class JuegoApp:
         self.login = Login(ventana, self.iniciar_juego)
 
         # Crear el frame para puntaje y respuestas
-        self.frame_puntaje = tk.Frame(self.ventana, bg="white")
-        self.frame_puntaje.place(relx=0.5, rely=0.95, anchor="center")
+        self.frame_puntaje = tk.Frame(self.ventana, bg="#6e8101")
+        self.frame_puntaje.place(relx=0.5, rely=0.97, anchor="center")
 
         # La etiqueta de puntaje estará dentro del frame_puntaje
-        self.etiqueta_puntaje = tk.Label(self.frame_puntaje, text=f"Puntaje: {self.puntaje}", font=("Helvetica", 14, "bold"), bg="white")
-        self.etiqueta_puntaje.pack(side=tk.LEFT, padx=10)
+        self.etiqueta_puntaje = tk.Label(self.frame_puntaje, text=f"Puntaje: {self.puntaje}", font=("Helvetica", 14, "bold"), bg="#6e8101")
+        self.etiqueta_puntaje.pack(side=tk.LEFT, padx=5)
 
 
 
@@ -53,13 +62,13 @@ class JuegoApp:
 
     def mostrar_categorias(self):
         self.limpiar_ventana()
-        self.etiqueta = tk.Label(self.ventana, text="Elija una categoría:", font=("Helvetica", 14, "bold"), bg="white")
-        self.etiqueta.pack(pady=20)
+        self.etiqueta = tk.Label(self.ventana, text="Elija una categoría:", font=("Helvetica", 14, "bold"), bg="#6e8101")
+        self.etiqueta.pack(pady=5)
 
         for categoria, color in colores_categoria.items():
             boton = tk.Button(self.ventana, text=categoria, font=("Helvetica", 12), bg=color,
                               command=lambda c=categoria: self.iniciar_categoria(c))
-            boton.pack(pady=10)
+            boton.pack(pady=5)
 
     def iniciar_categoria(self, categoria):
         self.puntaje = 0
@@ -80,46 +89,46 @@ class JuegoApp:
             self.limpiar_ventana()
             self.respuestas_correctas = []
             self.vidas = 3
-            self.etiqueta = tk.Label(self.ventana, text=pregunta, font=("Helvetica", 12), bg="white")
-            self.etiqueta.pack(pady=20)
+            self.etiqueta = tk.Label(self.ventana, text=pregunta, font=("Helvetica", 10), bg="#6e8101")
+            self.etiqueta.pack(pady=5)
 
             image_name = f"{self.categoria}_{self.pregunta_actual + 1}.png"
             image_path = f"img/{image_name}"
 
             try:
                 img = Image.open(image_path)
-                img = img.resize((300, 200), Image.Resampling.LANCZOS)
+                img = img.resize((200, 100), Image.Resampling.LANCZOS)
                 img_tk = ImageTk.PhotoImage(img)
 
                 if self.imagen_label is None:
-                    self.imagen_label = tk.Label(self.ventana, image=img_tk, bg="white")
+                    self.imagen_label = tk.Label(self.ventana, image=img_tk, bg="#6e8101")
                     self.imagen_label.image = img_tk
                     self.imagen_label.pack(pady=10)
                 else:
                     self.imagen_label.config(image=img_tk)
                     self.imagen_label.image = img_tk
             except FileNotFoundError:
-                pass  # Si no encuentra la imagen, continúa sin mostrarla.
+                pass  
 
-            self.entrada_respuesta = tk.Entry(self.ventana, font=("Helvetica", 12))
+            self.entrada_respuesta = tk.Entry(self.ventana, font=("Helvetica", 10))
             self.entrada_respuesta.pack(pady=10)
-            self.boton_enviar = tk.Button(self.ventana, text="Responder", font=("Helvetica", 12),
+            self.boton_enviar = tk.Button(self.ventana, text="Responder", font=("Helvetica", 10),
                                           command=self.verificar_respuesta)
             self.boton_enviar.pack(pady=10)
-            self.respuestas_frame = tk.Frame(self.ventana, bg="white")
+            self.respuestas_frame = tk.Frame(self.ventana, bg="#6e8101")
             self.respuestas_frame.pack()
 
             self.etiquetas_respuestas = []
             for i in range(len(opciones)):
-                etiqueta = tk.Label(self.respuestas_frame, text="", font=("Helvetica", 12),
-                                    bg="white", fg="black", width=30, height=2,
+                etiqueta = tk.Label(self.respuestas_frame, text="", font=("Helvetica", 10),
+                                    bg="#6e8101", fg="black", width=25, height=2,
                                     relief="solid", borderwidth=2)
                 etiqueta.config(highlightbackground=self.color_categoria, highlightthickness=2)
                 etiqueta.grid(row=i // 2, column=i % 2, padx=5, pady=5)
                 self.etiquetas_respuestas.append(etiqueta)
 
-            self.etiqueta_puntaje.config(text=f"Puntaje: {self.puntaje}")  # Actualizar el puntaje
-            self.etiqueta_puntaje.pack(side=tk.LEFT, padx=10)
+            self.etiqueta_puntaje.config(text=f"Puntaje: {self.puntaje}")  
+            self.etiqueta_puntaje.pack(side=tk.LEFT, padx=5)
         else:
             self.finalizar_juego()
 
@@ -151,6 +160,7 @@ class JuegoApp:
             messagebox.showinfo("Respuesta Correcta", "¡Respuesta correcta!")
             self.actualizar_puntaje()
             if len(self.respuestas_correctas) == len(opciones):
+                pygame.mixer.Sound.play(self.sonido_todoCorrecto)
                 messagebox.showinfo("Pregunta Completada", "¡Has respondido todas las respuestas correctamente!")
                 self.pregunta_actual += 1
                 self.hacer_pregunta()
@@ -169,33 +179,33 @@ class JuegoApp:
         self.limpiar_ventana()
 
         self.etiqueta = tk.Label(self.ventana, text=f"Fin del juego, {self.usuario}. Puntaje final: {self.puntaje}",
-                                 font=("Helvetica", 14, "bold"), bg="white")
+                                 font=("Helvetica", 14, "bold"), bg="#6e8101")
         self.etiqueta.pack(pady=20)
 
         guardar_jugador(self.usuario, self.puntaje)
         jugadores_top = obtener_top_jugadores()
 
         if jugadores_top:
-            encabezado = tk.Label(self.ventana, text="Top Jugadores:", font=("Helvetica", 12, "bold"), bg="white")
+            encabezado = tk.Label(self.ventana, text="Top Jugadores:", font=("Helvetica", 12, "bold"), bg="#6e8101")
             encabezado.pack(pady=10)
 
             for idx, (nombre, puntaje) in enumerate(jugadores_top, start=1):
                 texto = f"{idx}. {nombre} - {puntaje} puntos"
-                etiqueta = tk.Label(self.ventana, text=texto, font=("Helvetica", 12), bg="white")
+                etiqueta = tk.Label(self.ventana, text=texto, font=("Helvetica", 12), bg="#6e8101")
                 etiqueta.pack(pady=5)
         else:
             etiqueta = tk.Label(self.ventana, text="No hay jugadores registrados aún.",
-                                font=("Helvetica", 12), bg="white")
+                                font=("Helvetica", 12), bg="#6e8101")
             etiqueta.pack(pady=5)
 
-        # Botón para jugar de nuevo
+        
         self.boton_jugar_de_nuevo = tk.Button(self.ventana, text="Jugar de nuevo", font=("Helvetica", 12),
-                                              command=self.mostrar_categorias)
-        self.boton_jugar_de_nuevo.pack(pady=20)
+                                command=self.mostrar_categorias)
+        self.boton_jugar_de_nuevo.pack(pady=5)
 
     def mostrar_tabla_clasificaciones(self):
         self.limpiar_ventana()
-        encabezado = tk.Label(self.ventana, text="Tabla de Clasificaciones", font=("Helvetica", 14, "bold"), bg="white")
+        encabezado = tk.Label(self.ventana, text="Tabla de Clasificaciones", font=("Helvetica", 14, "bold"), bg="#6e8101")
         encabezado.pack(pady=20)
 
         jugadores_top = obtener_top_jugadores()
@@ -203,34 +213,35 @@ class JuegoApp:
         if jugadores_top:
             for idx, (nombre, puntaje) in enumerate(jugadores_top, start=1):
                 texto = f"{idx}. {nombre} - {puntaje} puntos"
-                etiqueta = tk.Label(self.ventana, text=texto, font=("Helvetica", 12), bg="white")
+                etiqueta = tk.Label(self.ventana, text=texto, font=("Helvetica", 12), bg="#6e8101")
                 etiqueta.pack(pady=5)
         else:
             etiqueta = tk.Label(self.ventana, text="No hay jugadores registrados aún.", font=("Helvetica", 12),
-                                bg="white")
+                                bg="#6e8101")
             etiqueta.pack(pady=5)
 
-        # Botón para volver al juego
+        
         boton_volver = tk.Button(self.ventana, text="Volver al juego", font=("Helvetica", 12),
                                  command=self.mostrar_categorias)
         boton_volver.pack(pady=20)
 
     def mostrar_categorias(self):
         self.limpiar_ventana()
-        self.etiqueta = tk.Label(self.ventana, text="Elija una categoría:", font=("Helvetica", 14, "bold"), bg="white")
-        self.etiqueta.pack(pady=20)
+        self.etiqueta = tk.Label(self.ventana, text="Elija una categoría:", font=("Helvetica", 14, "bold"), bg="#6e8101")
+        self.etiqueta.pack(pady=8)
 
         for categoria, color in colores_categoria.items():
             boton = tk.Button(self.ventana, text=categoria, font=("Helvetica", 12), bg=color,
                               command=lambda c=categoria: self.iniciar_categoria(c))
-            boton.pack(pady=10)
+            boton.pack(pady=8)
 
-        # Botón para ver la tabla de clasificaciones
+        
         boton_tabla = tk.Button(self.ventana, text="Tabla de Clasificaciones", font=("Helvetica", 12), bg="lightblue",
                                 command=self.mostrar_tabla_clasificaciones)
-        boton_tabla.pack(pady=20)
+        boton_tabla.pack(pady=8)
 
     def limpiar_ventana(self):
         for widget in self.ventana.winfo_children():
-            if widget != self.imagen_label and widget != self.frame_puntaje:
+            if widget not in [self.label_fondo, self.frame_puntaje, self.imagen_label]:
                 widget.destroy()
+    
