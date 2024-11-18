@@ -5,8 +5,8 @@ preguntas = {
             (["La Gran Muralla China", "Gran Muralla China", "Muralla China"], 10000),
             (["La Torre Eiffel", "Torre Eiffel", "Eiffel"], 5000),
             (["El Tah Mahal", "Tah Mahal", "El Taj Mahal", "Taj Mahal"], 3000),
-            (["El Monumental", "Monumental"], 1500),
-            (["La Bombonera", "Bombonera"], 1000),
+            (["La Sagrada Familia", "Sagrada Familia"], 1500),
+            (["Auroras boreales", "Auroras","Aurora"], 1000),
         ]),
         ("Decime un cuento o película infantil en el que haya un hada.", [
             (["La Cenicienta", "Cenicienta"], 50000),
@@ -39,7 +39,7 @@ preguntas = {
             (["Graduados"], 5000),
         ]),
         ("¿Qué cantante argentino es el más famoso?", [
-            (["Charly García", "Charly Garcia", "Charly"], 100000),
+            (["Charly García", "Charly Garcia", "Charly","Garcia"], 100000),
             (["Gustavo Cerati", "Cerati"], 80000),
             (["Luis Alberto Spinetta", "Spinetta"], 60000),
             (["Fito Páez", "Fito Paez", "Fito", "Páez", "Paez"], 40000),
@@ -99,3 +99,4 @@ colores_categoria = {
     "Deportes": "lightcoral",
     "Historia Argentina": "lightgoldenrod",
 }
+
