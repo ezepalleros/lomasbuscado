@@ -14,7 +14,8 @@ class Login:
         self.entrada = tk.Entry(ventana, font=("Helvetica", 12))
         self.entrada.pack(pady=10)
 
-        self.boton_iniciar = tk.Button(ventana, text="Comenzar", font=("Helvetica", 12), command=self.iniciar_sesion, width=0, height=0)
+        self.boton_iniciar = tk.Button(ventana, text="Comenzar", font=("Helvetica", 12), command=self.iniciar_sesion, width=0, height=0,bg="#D62424",
+            fg="black",)
         self.boton_iniciar.pack(pady=5)
 
         # Mostrar el Top 3 de jugadores al inicio
